@@ -604,6 +604,11 @@ components:
             enum: 
               - admin
               - user
+          image: 
+            type: object
+          company: 
+            type: string
+          
     
     # The company object --------------------------------------------------------------
     company:
@@ -611,6 +616,27 @@ components:
       properties: 
         name: 
           type: string
+        image: 
+          type: object
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              description: Street address of the customer.
+            city:
+              type: string
+              description: City of the customer's address.
+            state:
+              type: string
+              description: State or region of the customer's address.
+            postal_code:
+              type: string
+              description: Postal or ZIP code of the customer's location.
+            country:
+              type: string
+              description: Country of the customer's address.
+          description: The full address of the customer.
         employees:
           type: array
           items: 
@@ -619,6 +645,7 @@ components:
           type: array
           items: 
             $ref: '#/components/schemas/fire extinguisher'
+
 
     # The fire extinguisher object -------------------------------------------------
     fire extinguisher:
