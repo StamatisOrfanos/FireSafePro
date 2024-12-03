@@ -67,7 +67,6 @@ class FireExtinguisher(models.Model):
     manufacture_date = models.DateField()
     warranty_period = models.PositiveIntegerField(help_text="Warranty period in months")
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    companies = models.ManyToManyField(Company, related_name='fire_extinguishers')
 
     def __str__(self):
         return f"{self.name} ({self.type})"

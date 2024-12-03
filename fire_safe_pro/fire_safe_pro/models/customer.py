@@ -22,7 +22,6 @@ class Customer(models.Model):
     shipping_address = models.OneToOneField(Address, on_delete=models.SET_NULL, null=True, blank=True, related_name='shipping_address')
     account_status = models.CharField(max_length=10, choices=ACCOUNT_STATUS_CHOICES, default='Active')
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     companies = models.ManyToManyField(Company, related_name='customers')
 
     def __str__(self):
