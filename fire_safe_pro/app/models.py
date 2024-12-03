@@ -34,7 +34,7 @@ class User(models.Model):
     ]
     username = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
-    role = models.CharField(max_length=10, choices=TYPE_CHOICES, default='User')
+    role = models.CharField(max_length=30, choices=TYPE_CHOICES, default='User')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='users')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -51,14 +51,11 @@ class Customer(models.Model):
     address = models.ForeignKey(Address, related_name="address", on_delete=models.SET_NULL, null=True)
     billing_address = models.ForeignKey(Address, related_name="billing_address", on_delete=models.SET_NULL, null=True)
     shipping_address = models.ForeignKey(Address, related_name="shipping_address", on_delete=models.SET_NULL, null=True)
-    account_status = models.CharField(max_length=10, choices=choices=[('active', 'Active'), ('inactive', 'Inactive')], default='active')
+    account_status = models.CharField(max_length=10, choices=[('active', 'Active'), ('inactive', 'Inactive')], default='active')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
-
-from .company import Company
-
 
 
 # Fire Extinguisher Model
