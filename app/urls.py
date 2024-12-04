@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_address, address_functionality, get_all_addresses
+from .views.address_views import create_address, address_functionality, get_all_addresses
 
 urlpatterns = [
     path('api/address/', create_address, name='create_address'),
