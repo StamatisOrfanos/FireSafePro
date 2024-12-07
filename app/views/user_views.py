@@ -31,7 +31,6 @@ def create_user(request):
             else request.user.company
         )
 
-        # Create the user
         user = User.objects.create(
             username=data["username"],
             password=make_password(data["password"]),
@@ -51,30 +50,86 @@ def create_user(request):
 
 @csrf_exempt
 @check_user_permission(["System Admin", "Company Admin"])
-def update_user(request, user_id):
-    if request.method != "PUT":
+def user_functionality(request, user_id):
+    
+    if request.method == "GET":
+        try:
+            user = User.objects.get(id=user_id)
+            return JsonResponse({
+                "username": user.username,
+                "role": user.role,
+                "company": user.company,
+                "created_at": user.created_at,
+                "updated_at": user.updated_at
+            }, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+    
+    elif request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+            user = User.objects.get(id=user_id)
+
+            if request.user.role == "Company Admin" and user.company != request.user.company:
+                return JsonResponse({"error": "Unauthorized to update users outside your company"}, status=403)
+
+            user.username = data.get("username", user.username)
+            if "password" in data: 
+                user.password = make_password(data["password"])
+            if "role" in data and request.user.role == "System Admin":
+                user.role = data["role"]
+
+            user.save()
+            return JsonResponse({"id": user.id, "message": "User updated successfully!"}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+        
+    elif request.method == "DELETE":
+        try:
+            user = User.objects.get(id=user_id)
+            user.delete()
+            return JsonResponse({"message": f"User with ID {user_id} deleted successfully!"}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({"error": f"User with ID {user_id} not found"}, status=404)
+        
+    else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
-    try:
-        data = json.loads(request.body)
-        user = User.objects.get(id=user_id)
 
-        if request.user.role == "Company Admin" and user.company != request.user.company:
-            return JsonResponse({"error": "Unauthorized to update users outside your company"}, status=403)
-
-        user.username = data.get("username", user.username)
-        if "password" in data: 
-            user.password = make_password(data["password"])
-        if "role" in data and request.user.role == "System Admin":
-            user.role = data["role"]
-
-        user.save()
-        return JsonResponse({"id": user.id, "message": "User updated successfully!"}, status=200)
-
-    except User.DoesNotExist:
-        return JsonResponse({"error": "User not found"}, status=404)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
+@csrf_exempt
+@check_user_permission(["Company Admin"])
+def get_company_users(request, user_id):
+    if request.method == "GET":
+        company = request.user.company
+        users = User.objects.filter(company=company).order_by("username")
+        users_list = [
+            {
+                "username": user.username,
+                "role": user.role,
+                "company": user.company,
+                "created_at": user.created_at,
+                "updated_at": user.updated_at
+            }
+            for user in users
+        ]
+        return JsonResponse({"users": users_list}, status=200)
 
 
-
+@csrf_exempt
+@check_user_permission(["System Admin"])
+def get_all_users(request):
+    if request.method == "GET":
+        users = User.objects.all().order_by("company", "username")
+        users_list = [
+            {
+                "username": user.username,
+                "role": user.role,
+                "company": user.company,
+                "created_at": user.created_at,
+                "updated_at": user.updated_at
+            }
+            for user in users
+        ]
+        return JsonResponse({"users": users_list}, status=200)

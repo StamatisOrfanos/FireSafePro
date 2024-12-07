@@ -22,6 +22,7 @@ def create_address(request):
 
 @csrf_exempt
 def address_functionality(request, address_id):
+    # Get
     if request.method == "GET":
         try:
             address = Address.objects.get(id=address_id)
@@ -36,6 +37,7 @@ def address_functionality(request, address_id):
         except Address.DoesNotExist:
             return JsonResponse({"error": "Address not found"}, status=404)
     
+    # Update
     elif request.method == "PUT":
         try:
             data = json.loads(request.body)
@@ -52,6 +54,7 @@ def address_functionality(request, address_id):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     
+    # Delete
     elif request.method == "DELETE":
         try:
             address = Address.objects.get(id=address_id)
