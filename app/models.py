@@ -28,7 +28,7 @@ class Company(models.Model):
 # User Model
 class User(models.Model):
     TYPE_CHOICES = [
-        ('System User', 'System User'),
+        ('Company User', 'Company User'),
         ('Company Admin', 'Company Admin'),
         ('System Admin', 'System Admin'),
     ]
