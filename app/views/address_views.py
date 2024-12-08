@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from ...models import Address
+from ..models import Address
 
 @csrf_exempt
 def create_address(request):
@@ -22,7 +22,6 @@ def create_address(request):
 
 @csrf_exempt
 def address_functionality(request, address_id):
-    # Get
     if request.method == "GET":
         try:
             address = Address.objects.get(id=address_id)
