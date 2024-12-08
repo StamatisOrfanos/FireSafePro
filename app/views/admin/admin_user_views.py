@@ -21,6 +21,9 @@ def check_user_permission(required_roles):
 def create_user(request):
     if request.method != "POST":
         return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    if User.objects.filter(username=data["username"]).exists():
+        return JsonResponse({"error": "User already exists with this username"}, status=400)
 
     try:
         data = json.loads(request.body)
@@ -50,7 +53,7 @@ def user_functionality(request, user_id):
             user = User.objects.get(id=user_id)
             return JsonResponse({
                 "username": user.username,
-                "role": "Company Admin",
+                "role": user.role,
                 "company": user.company,
                 "created_at": user.created_at,
                 "updated_at": user.updated_at
