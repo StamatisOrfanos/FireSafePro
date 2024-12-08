@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from ..models import Address
+from ...models import Address
 
 @csrf_exempt
 def create_address(request):

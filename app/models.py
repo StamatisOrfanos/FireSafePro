@@ -17,7 +17,7 @@ class Address(models.Model):
 
 # Company Model
 class Company(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     email = models.EmailField(blank=True, null=True)
     location = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
     image = models.ImageField(upload_to='company_images/', blank=True, null=True)
