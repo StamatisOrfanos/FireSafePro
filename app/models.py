@@ -23,7 +23,7 @@ class Company(models.Model):
     image = models.ImageField(upload_to='company_images/', blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return f"Company with name: {self.name}, email: {self.email} and location: {self.location}"
 
 # User Model
 class User(models.Model):
