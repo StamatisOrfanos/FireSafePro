@@ -64,8 +64,8 @@ def company_functionality(request, company_id):
             data = json.loads(request.body)
             company.name = data["name"] if "name" in data else company.name
             company.email = data["email"] if "email" in data else company.email
-            company.location = define_address(data=data)
-            
+            company.location = define_address(data=data["location"]) if "location" in data else company.location
+            company.save()
             return JsonResponse({
                 "id": company.id,
                 "name": company.name,
@@ -97,32 +97,35 @@ def update_company_image(request, company_id):
     try:
         company = Company.objects.get(id=company_id)
     except Company.DoesNotExist:
-        return JsonResponse({"error": f"Company: {company.name} not found"}, status=404)
-    
+        return JsonResponse({"error": f"Company not found"}, status=404)
+
     if request.method == "PUT":
         try:
-            address = company.location
-            image = request.FILES.get("image") if "image" in request.FILES else company.image
+            image = request.FILES.get("image")
+            if image:
+                company.image = image
+                company.save()
 
             return JsonResponse({
-                "id": company.id, 
-                "name": company.name, 
+                "id": company.id,
+                "name": company.name,
                 "email": company.email,
                 "location": {
-                    "id": address.id,
-                    "street": address.street,
-                    "city": address.city,
-                    "state": address.state,
-                    "country": address.country,
-                    "postal_code": address.postal_code,
+                    "id": company.location.id,
+                    "street": company.location.street,
+                    "city": company.location.city,
+                    "state": company.location.state,
+                    "country": company.location.country,
+                    "postal_code": company.location.postal_code,
                 },
-                "image": image,
-                "message": "Company and address processed successfully!"
-            }, status=201)
+                "image_url": company.image.url if company.image else None,
+                "message": "Company image updated successfully!",
+            }, status=200)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+
 
 
 @csrf_exempt
@@ -170,10 +173,10 @@ def define_address(data):
     if not all(address_data.get(field) for field in required_fields):
         return JsonResponse({"error": "Missing address fields"}, status=400)
 
-    address = Address.objects.filter(street=street, city=city, state=state, country=country, postal_code=postal_code).first()
+    address = Address.objects.filter(**address_data).first()
         
     if not address:
-        address = Address.objects.create(street=street, city=city, state=state, country=country, postal_code=postal_code)
+        address = Address.objects.create(**address_data)
         
     return address
     
