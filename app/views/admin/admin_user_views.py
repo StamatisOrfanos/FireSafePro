@@ -35,7 +35,6 @@ def create_user(request):
             company=company,
         )
         return JsonResponse({"id": user.id, "message": "User created successfully!"}, status=201)
-
     except KeyError as e:
         return JsonResponse({"error": f"Missing field: {str(e)}"}, status=400)
     except Company.DoesNotExist:
@@ -66,14 +65,9 @@ def user_functionality(request, user_id):
             data = json.loads(request.body)
             user = User.objects.get(id=user_id)
             user.username = data.get("username", user.username)
-            
-            if "password" in data:  
-                user.password = make_password(data["password"])  
-            if "role" in data: 
-                user.role = data["role"]
-
+            user.password = make_password(data["password"]) if "password" in data else user.password
+            user.role = data["role"] if "role" in data else user.role
             user.save()
-            
             return JsonResponse({"id": user.id, "message": "User updated successfully!"}, status=200)
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
