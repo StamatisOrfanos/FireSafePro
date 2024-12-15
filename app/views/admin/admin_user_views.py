@@ -19,28 +19,25 @@ def check_user_permission(required_roles):
 
 @csrf_exempt
 def create_user(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Method not allowed"}, status=405)
-    
-    if User.objects.filter(username=data["username"]).exists():
-        return JsonResponse({"error": "User already exists with this username"}, status=400)
-
-    try:
-        data = json.loads(request.body)
-        company = Company.objects.get(name=data["company"])
-        user = User.objects.create(
-            username=data["username"],
-            password=make_password(data["password"]),
-            role="Company Admin",
-            company=company,
-        )
-        return JsonResponse({"id": user.id, "message": "User created successfully!"}, status=201)
-    except KeyError as e:
-        return JsonResponse({"error": f"Missing field: {str(e)}"}, status=400)
-    except Company.DoesNotExist:
-        return JsonResponse({"error": "Company not found"}, status=404)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
+    if request.method == "POST":
+        try:
+            username = request.POST.get("username")
+            password = make_password(request.POST.get("password")) 
+            role = User.TYPE_CHOICES["Company Admin"]
+            company_name = request.POST.get("company_name")
+            
+            try:
+                company = Company.objects.get(name=company_name)
+            except Company.DoesNotExist:
+                return JsonResponse({"error": f"Company: {company.name} not found"}, status=404)
+                        
+            image = request.FILES.get("image")
+            signature = request.FILES.get("signature")
+            
+            user = User.objects.create(username=username, password=password, role=role, company=company, image=image, signature=signature)
+            return JsonResponse({"id": user.id, "message": "User created successfully!"}, status=201)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
 
 
 

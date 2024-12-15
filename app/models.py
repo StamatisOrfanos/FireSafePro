@@ -36,11 +36,13 @@ class User(models.Model):
     password = models.CharField(max_length=255)
     role = models.CharField(max_length=30, choices=TYPE_CHOICES, default='User')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='users')
+    image = models.ImageField(upload_to='user_images/', blank=True, null=True)
+    signature = models.ImageField(upload_to='user_signature/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.username
+        return f"User with username: {self.username}, role: {self.role} and company: {self.company}"
 
 # Customer Model
 class Customer(models.Model):
